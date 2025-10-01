@@ -1,10 +1,11 @@
 import './App.css'
+import Button from './components/button.tsx';
 
 function App() {
 
   return (
-    <>  
-    hello
+    <>
+      <Button name="Back" />
     </>
   )
 }
