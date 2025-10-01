@@ -1,4 +1,5 @@
 import './App.css'
+import Button from './components/Button.tsx'
 
 function App() {
 
