@@ -2,7 +2,7 @@
 // and check the user session.
 
 export type Interest = "health" | "environment" | "social" | "economic";
-export type Status = "draft" | "in_progress" | "ready" | "archived";
+export type Status = "in_progress" | "ready" | "archived";
 export type Role = "user" | "bot";
 
 export type User = {
