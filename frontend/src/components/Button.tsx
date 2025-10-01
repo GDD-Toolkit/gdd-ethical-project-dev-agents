@@ -4,11 +4,11 @@ interface buttonProps {
 }
 
 const Button = ({name}: buttonProps) => {
-
-
   return (
     <>
-      <button className=''>{name}</button>
+      <button className='w-25 text-white bg-linear-to-r from-[#A07CFF] to-[#6D83F2]'>
+        <strong>{name}</strong>
+      </button>
     </>
   )
 }
