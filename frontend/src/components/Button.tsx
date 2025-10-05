@@ -1,16 +1,20 @@
-
-interface buttonProps {
-  name: string
+interface ButtonProps {
+  label: string;
+  onClick?: () => void;
+  className?: string;
 }
 
-const Button = ({name}: buttonProps) => {
+const Button = ({ label, onClick, className }: ButtonProps) => {
   return (
-    <>
-      <button className='w-25 text-white bg-linear-to-r from-[#A07CFF] to-[#6D83F2]'>
-        <strong>{name}</strong>
-      </button>
-    </>
-  )
-}
+    <button
+      onClick={onClick}
+      className={`w-25 text-white bg-gradient-to-r from-[#A07CFF] to-[#6D83F2] hover:brightness-90 transition duration-200 ${
+        className || ""
+      }`}
+    >
+      <strong>{label}</strong>
+    </button>
+  );
+};
 
 export default Button;
