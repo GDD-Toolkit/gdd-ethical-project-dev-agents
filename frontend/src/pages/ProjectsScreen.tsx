@@ -10,11 +10,13 @@ interface ProjectsScreenProps {
 const ProjectsScreen = ({ projectArray, onClick} : ProjectsScreenProps) => {
   const [tag, setTag] = useState('');
 
-  if (!projectArray) {
+  if (!projectArray || projectArray.length === 0) {
     return (
       <div>
         <h1>You have no projects yet.</h1>
-        Create one <button className="!bg-transparent !border-none !p-0 text-blue-600 hover:underline" style={{ outline: 'none' }}>here</button>!
+        Create one <button 
+          onClick={() => {/* TODO: implement create project flow*/}} 
+          className="!bg-transparent !border-none !p-0 text-blue-600 hover:underline" style={{ outline: 'none' }}>here</button>!
       </div>
     )
   }
@@ -25,15 +27,15 @@ const ProjectsScreen = ({ projectArray, onClick} : ProjectsScreenProps) => {
         <div className='text-white font-bold mt-3'>
           Filter by Tag: <input className="!bg-white text-black px-2 py-0.5 font-normal" value={tag} onChange={({target}) => setTag(target.value)} />
         </div>
-        {projectArray?.filter(proj=> !tag || proj.tags?.some(projectTag => projectTag.toLowerCase().includes(tag.toLowerCase())))
+        {projectArray.filter(proj=> !tag || proj.tags?.some(projectTag => projectTag.toLowerCase().includes(tag.toLowerCase())))
         .map(proj =>(
-          <div key={proj.project_id} onClick={onClick} className={`flex flex-col md:flex-row items-center justify-center bg-[#D9D9D9] border border-2 border-black m-10  h-30 rounded-lg p-5 hover:brightness-90 transition duration-200 hover:cursor-pointer overflow-y-hidden`}>
+          <div key={proj.project_id} onClick={onClick} className={`flex flex-col md:flex-row items-center justify-center bg-[#D9D9D9] border border-2 border-black m-10  h-30 rounded-lg p-5 hover:brightness-90 transition duration-200 hover:cursor-pointer`}>
             <p className='font-bold mb-2 hover:cursor-pointer'>{proj.title}</p>
             <p className='overflow-y-scroll pr-2 hover:cursor-pointer'>{proj.description}</p>
           </div>
         ))}
       </div>
-      <Button label='Back' />
+      <Button label='Back' onClick={() => {/* TODO: implement back navigation */}} />
     </>
       
   );
