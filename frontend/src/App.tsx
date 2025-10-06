@@ -2,6 +2,11 @@ import './App.css'
 import ProjectsScreen from './pages/ProjectsScreen'
 import type { Project } from '../../shared/types/types';
 
+/**
+ * Root application component that supplies a sample list of projects to the ProjectsScreen.
+ *
+ * @returns The root JSX element rendering ProjectsScreen with a `projectArray` prop containing sample `Project` objects.
+ */
 function App() {
 
   const projects: Project[] = [
