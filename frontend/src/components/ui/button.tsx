@@ -36,6 +36,15 @@ const buttonVariants = cva(
   }
 )
 
+/**
+ * Render a styled button with configurable visual variant and size, optionally delegating rendering to a child element.
+ *
+ * @param className - Additional CSS class names to merge with the computed button classes.
+ * @param variant - Visual variant to apply (controls color, borders, and state styles).
+ * @param size - Size variant to apply (controls height, padding, gap, and icon sizing).
+ * @param asChild - When true, render a Radix Slot to allow the caller to supply the underlying element; otherwise render a native `button`.
+ * @returns The button (or provided child element) with computed variant and size classes applied and all other props forwarded.
+ */
 function Button({
   className,
   variant,
