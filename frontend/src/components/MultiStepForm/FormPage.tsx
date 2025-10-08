@@ -27,7 +27,7 @@ const FormPage: React.FC<FormPageProps> = ({
   totalPages,
   step
 }) => {  return (
-    <div className="w-full space-y-6 p-6 flex justify-between flex-col">
+    <div className="multi-step-form flex flex-col justify-between w-full p-6 space-y-6">
       
       <h2 className="text-2xl font-semibold text-[#262633] text-[40px] ">{title}</h2>
 
@@ -39,7 +39,7 @@ const FormPage: React.FC<FormPageProps> = ({
       ))}
 
       <div className="mt-6 flex items-center justify-between gap-4">
-        {onPrev && (
+        {onPrev && step > 1 && (
           <Button onClick={onPrev} label="Back"></Button>
         )}
         <ProgressBar page={step} total={totalPages} />
