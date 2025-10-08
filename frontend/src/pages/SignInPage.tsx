@@ -26,6 +26,7 @@ const SignInPage = () => {
           <div className="relative">
             <OneLineInput
               placeholder="Password"
+              type="password"
               value={password}
               onChange={setPassword}
             />
@@ -48,11 +49,7 @@ const SignInPage = () => {
 
           <button
             onClick={() => alert("Continue with Google")}
-            className="flex items-center justify-center w-full border border-gray-300 rounded-md py-2 text-xs hover:bg-gray-50 transition text-gray-700 font-medium"
-            style={{
-              backgroundColor: "white",
-              color: "#374151",
-            }}
+            className="flex items-center bg-white justify-center w-full border-solid border-gray-300 rounded-md py-2 text-xs hover:bg-gray-50 transition text-gray-700 font-medium"
           >
             <img
               src="https://www.svgrepo.com/show/355037/google.svg"

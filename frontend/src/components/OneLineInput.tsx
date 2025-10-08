@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Delete } from "lucide-react";
 
 interface OneLineInputProps {
   placeholder?: string;
+  type?: string;
   value?: string;
   onChange?: (value: string) => void;
   maxLength?: number;
@@ -18,6 +18,7 @@ interface OneLineInputProps {
  */
 export function OneLineInput({
   placeholder = "Enter text...",
+  type = "text",
   value,
   onChange,
   maxLength,
@@ -35,15 +36,10 @@ export function OneLineInput({
     else setInternalValue(newValue);
   };
 
-  const handleClear = () => {
-    if (onChange) onChange("");
-    else setInternalValue("");
-  };
-
   return (
     <div className="relative w-full">
       <input
-        type="text"
+        type={type}
         placeholder={placeholder}
         value={displayValue}
         onChange={handleChange}
@@ -55,25 +51,12 @@ export function OneLineInput({
           ${
             disabled
               ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed opacity-70"
-              : "bg-gray-300 text-gray-800 border-red-400 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-400/20 focus:border-red-400"
+              : "bg-gray-300 text-gray-800 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-400/20 focus:border-red-400"
           }
           ${className || ""}
         `}
         {...props}
       />
-
-      {displayValue && !disabled && (
-        <Delete
-          onClick={handleClear}
-          className="
-            absolute right-3 top-1/2 -translate-y-1/2
-            h-5 w-5 text-gray-500
-            hover:text-gray-700 hover:scale-110
-            transition-transform duration-200 ease-in-out
-            cursor-pointer
-          "
-        />
-      )}
     </div>
   );
 }

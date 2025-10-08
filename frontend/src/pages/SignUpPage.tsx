@@ -25,6 +25,7 @@ const SignUpPage = () => {
           <OneLineInput placeholder="Email" value={email} onChange={setEmail} />
           <OneLineInput
             placeholder="Password"
+            type="password"
             value={password}
             onChange={setPassword}
           />
