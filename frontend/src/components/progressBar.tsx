@@ -9,7 +9,7 @@ export default function ProgressBar({
     console.error("Total must be at least 1");
   }
 
-  if (page > total || page < total) {
+  if (page > total || page < 0) {
     console.error(`Page number must be between 1 and ${total}`);
     return null;
   }
