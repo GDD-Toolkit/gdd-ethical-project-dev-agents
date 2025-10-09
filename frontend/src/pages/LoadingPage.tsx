@@ -1,6 +1,5 @@
-import { FunFactsRotator } from '@/components/FunFact';
-import LoadingIcon from '@/components/LoadingIcon'
-
+import { FunFactsRotator } from "@/components/FunFact";
+import LoadingIcon from "@/components/LoadingIcon";
 
 const fun_facts = [
   "The UN estimates 1/3 of all food produced globally is wasted - enough to feed 2 billion people.",
@@ -30,11 +29,13 @@ const fun_facts = [
 
 export function LoadingPage() {
   return (
-    <>
-        <LoadingIcon />
-        <FunFactsRotator facts={fun_facts}/>
-    </>
-  )
+    <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+      <LoadingIcon />
+      <div className="mt-4 text-lg max-w-2xl">
+        <FunFactsRotator facts={fun_facts} />
+      </div>
+    </div>
+  );
 }
 
-export default LoadingPage
+export default LoadingPage;
