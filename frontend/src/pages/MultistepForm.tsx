@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import FormPage from "../components/MultiStepForm/FormPage";
 import { formSteps } from "../components/MultiStepForm/FormConfig";
-
 
 const MultiStepForm = () => {
   const [step, setStep] = useState(0);
 
   const nextStep = () => {
-    if (step < formSteps.length - 1)
-    {
+    if (step < formSteps.length - 1) {
       setStep(step + 1);
     }
   };
@@ -17,7 +15,7 @@ const MultiStepForm = () => {
 
   return (
     <div className="multi-step-form flex min-h-screen flex-col bg-background">
-      <div className="w-full p-[20px] flex items-center text-[40px] md:text-[48px] font-[500] text-white bg-gradient-to-b from-[#262633] to-[#727299] shadow-sm">
+      <div className="w-full p-5 flex items-center text-4xl md:text-5xl font-[500] text-white bg-gradient-to-b from-[#262633] to-[#727299] shadow-sm">
         Create Your Project Proposal
       </div>
       <main className="flex-1 w-full px-6 py-8">

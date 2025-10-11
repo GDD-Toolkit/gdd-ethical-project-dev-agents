@@ -1,5 +1,5 @@
 import React from "react";
-import ProgressBar from "../progressBar";
+import ProgressBar from "../ProgressBar";
 import Button from "../Button";
 import QuestionBox from "../QuestionBox";
 
@@ -17,22 +17,26 @@ type FormPageProps = {
   step: number;
 };
 
-const FormPage: React.FC<FormPageProps> = ({ 
-  title, 
+const FormPage: React.FC<FormPageProps> = ({
+  title,
   questions,
   onNext,
   onPrev,
   isLastStep,
   totalPages,
-  step
-}) => {  
+  step,
+}) => {
   return (
     <div className="multi-step-form flex flex-col justify-between w-full p-6 space-y-6">
-      
-      <h2 className="text-2xl font-semibold text-[#262633] text-[40px]">{title}</h2>
+      <h2 className="font-semibold text-[#262633] text-4xl">{title}</h2>
 
       {questions.map((field) => (
-        <QuestionBox key={field.id} question={field.question} tooltip={field.description} className="mb-4" />
+        <QuestionBox
+          key={field.id}
+          question={field.question}
+          tooltip={field.description}
+          className="mb-4"
+        />
       ))}
 
       <div className="mt-6 flex items-center justify-between gap-4">

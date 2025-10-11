@@ -1,5 +1,3 @@
-import { i } from "framer-motion/client";
-
 export const formSteps = [
   {
     title: "Ethicality",
