@@ -1,7 +1,7 @@
 import React from "react";
 import ProgressBar from "../progressBar";
 import Button from "../Button";
-import { LongFormInput } from "../LongFormInput";
+import QuestionBox from "../QuestionBox";
 
 type FormPageProps = {
   title: string;
@@ -14,8 +14,7 @@ type FormPageProps = {
   onPrev: () => void;
   isLastStep: boolean;
   totalPages: number;
-  step: number
-
+  step: number;
 };
 
 const FormPage: React.FC<FormPageProps> = ({ 
@@ -26,28 +25,33 @@ const FormPage: React.FC<FormPageProps> = ({
   isLastStep,
   totalPages,
   step
-}) => {  return (
+}) => {  
+  return (
     <div className="multi-step-form flex flex-col justify-between w-full p-6 space-y-6">
       
-      <h2 className="text-2xl font-semibold text-[#262633] text-[40px] ">{title}</h2>
+      <h2 className="text-2xl font-semibold text-[#262633] text-[40px]">{title}</h2>
 
       {questions.map((field) => (
-        <div key={field.id} className="space-y-2">
-          <label className="block text-sm font-medium text-foreground text-[#262633] text-[24px]">{field.question}</label>
-          <LongFormInput placeholder={field.description} />
-        </div>
+        <QuestionBox key={field.id} question={field.question} tooltip={field.description} className="mb-4" />
       ))}
 
       <div className="mt-6 flex items-center justify-between gap-4">
-        {onPrev && step > 1 && (
-          <Button onClick={onPrev} label="Back"></Button>
+        {step > 1 ? (
+          <Button onClick={onPrev} label="Back" />
+        ) : (
+          // Invisible placeholder to keep layout balanced
+          <div className="opacity-0 pointer-events-none">
+            <Button label="Back" />
+          </div>
         )}
-        <ProgressBar page={step} total={totalPages} />
-        { isLastStep ?
-          <Button label="Submit"></Button> :
-          <Button label="Next" onClick={onNext}></Button>
-        }
 
+        <ProgressBar page={step} total={totalPages} />
+
+        {isLastStep ? (
+          <Button label="Submit" />
+        ) : (
+          <Button label="Next" onClick={onNext} />
+        )}
       </div>
     </div>
   );
