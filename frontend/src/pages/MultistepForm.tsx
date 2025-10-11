@@ -2,8 +2,19 @@ import { useState } from "react";
 import FormPage from "../components/MultiStepForm/FormPage";
 import { formSteps } from "../components/MultiStepForm/FormConfig";
 
+type FormData = Record<number, string>;
+
 const MultiStepForm = () => {
   const [step, setStep] = useState(0);
+  const [formData, setFormData] = useState<FormData>({});
+  const handleAnswerChange = (questionId: number, answer: string) => {
+    setFormData((prev) => ({ ...prev, [questionId]: answer }));
+  };
+
+  const handleSubmit = () => {
+    console.log("Form submitted:", formData);
+    // TODO: Send formData to backend API
+  };
 
   const nextStep = () => {
     if (step < formSteps.length - 1) {
@@ -22,8 +33,11 @@ const MultiStepForm = () => {
         <FormPage
           title={formSteps[step].title}
           questions={formSteps[step].questions}
+          formData={formData}
+          onAnswerChange={handleAnswerChange}
           onNext={nextStep}
           onPrev={prevStep}
+          onSubmit={handleSubmit}
           isLastStep={step === formSteps.length - 1}
           totalPages={formSteps.length}
           step={step + 1}

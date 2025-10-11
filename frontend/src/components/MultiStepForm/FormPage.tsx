@@ -10,8 +10,11 @@ type FormPageProps = {
     question: string;
     description: string;
   }[];
+  formData?: Record<number, string>;
+  onAnswerChange?: (questionId: number, answer: string) => void;
   onNext: () => void;
   onPrev: () => void;
+  onSubmit?: () => void;
   isLastStep: boolean;
   totalPages: number;
   step: number;
@@ -20,8 +23,11 @@ type FormPageProps = {
 const FormPage: React.FC<FormPageProps> = ({
   title,
   questions,
+  formData,
+  onAnswerChange,
   onNext,
   onPrev,
+  onSubmit,
   isLastStep,
   totalPages,
   step,
@@ -35,6 +41,8 @@ const FormPage: React.FC<FormPageProps> = ({
           key={field.id}
           question={field.question}
           tooltip={field.description}
+          value={formData?.[field.id] || ""}
+          onChange={(value) => onAnswerChange?.(field.id, value)}
           className="mb-4"
         />
       ))}
@@ -52,7 +60,7 @@ const FormPage: React.FC<FormPageProps> = ({
         <ProgressBar page={step} total={totalPages} />
 
         {isLastStep ? (
-          <Button label="Submit" />
+          <Button label="Submit" onClick={onSubmit} />
         ) : (
           <Button label="Next" onClick={onNext} />
         )}
