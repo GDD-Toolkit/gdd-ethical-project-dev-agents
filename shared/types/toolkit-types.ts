@@ -131,8 +131,3 @@ export type Policy = {
   references: string[];
   evaluation: ProjectEvaluation;
 };
-
-type CaseStudy = {
-  type: "Project" | "Policy";
-  case_study: Project | Policy;
-};
