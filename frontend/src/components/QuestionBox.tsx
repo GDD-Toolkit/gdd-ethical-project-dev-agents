@@ -36,7 +36,8 @@ const QuestionBox = ({
             </div>
 
             <div
-              className="absolute right-0 top-6 z-20 hidden group-hover:block max-w-sm bg-white border border-gray-300 text-gray-700 text-sm p-3 rounded-md shadow-md whitespace-normal break-words"
+              className="absolute right-0 top-6 z-20 hidden group-hover:block bg-white border border-gray-300 text-gray-700 text-sm p-3 rounded-md shadow-md whitespace-pre-wrap break-words"
+              style={{ maxWidth: "20rem", width: "max-content" }}
               role="tooltip"
             >
               {tooltip}
