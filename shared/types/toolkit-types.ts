@@ -10,7 +10,7 @@ export type Region =
 
 export type Value =
   | "Well-Being"
-  | "Equality"
+  | "Equity"
   | "Empowerment"
   | "Sustainability"
   | "Human Rights"
