@@ -93,8 +93,8 @@ export type IndicatorsByValue = typeof Indicators;
 export type ProjectEvaluation = {
   [K in keyof IndicatorsByValue as Lowercase<K>]: {
     summary: string;
-    indicators_checked: IndicatorsByValue[K];
-    score: "A" | "B" | "C" | "F";
+    indicators_checked?: IndicatorsByValue[K];
+    score?: "A" | "B" | "C" | "F";
   };
 };
 
