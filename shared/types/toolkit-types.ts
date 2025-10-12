@@ -10,7 +10,7 @@ export type Region =
 
 export type Value =
   | "Well-Being"
-  | "Equity"
+  | "Equality"
   | "Empowerment"
   | "Sustainability"
   | "Human Rights"
@@ -93,8 +93,8 @@ export type IndicatorsByValue = typeof Indicators;
 export type ProjectEvaluation = {
   [K in keyof IndicatorsByValue as Lowercase<K>]: {
     summary: string;
-    indicators_checked: IndicatorsByValue[K];
-    score: "A" | "B" | "C" | "F";
+    indicators_checked?: IndicatorsByValue[K];
+    score?: "A" | "B" | "C" | "F";
   };
 };
 
