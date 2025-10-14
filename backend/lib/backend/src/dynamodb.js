@@ -199,9 +199,7 @@ const queryCaseStudyProjectsByRegion = async (region) => {
 exports.queryCaseStudyProjectsByRegion = queryCaseStudyProjectsByRegion;
 /* Query projects by keyword */
 const queryCaseStudyProjectsByKeyword = async (keyword) => {
-    return queryItems("Toolkit-CaseStudyProjects", undefined, // no key condition, will use Scan
-    { ":keyword": keyword }, "contains (keywords, :keyword)" // FilterExpression
-    );
+    return queryItems("Toolkit-CaseStudyProjects", undefined, { ":keyword": keyword }, "contains (keywords, :keyword)");
 };
 exports.queryCaseStudyProjectsByKeyword = queryCaseStudyProjectsByKeyword;
 // Query projects by any field
@@ -238,8 +236,7 @@ const deleteCaseStudyPolicy = (id) => deleteItem("Toolkit-CaseStudyPolicies", { 
 exports.deleteCaseStudyPolicy = deleteCaseStudyPolicy;
 // Query policies by region
 const queryPoliciesByRegion = async (region) => {
-    return queryItems("Toolkit-CaseStudyPolicies", undefined, // no key condition, will use Scan
-    { ":region": region }, "contains (regions, :region)" // FilterExpression
+    return queryItems("Toolkit-CaseStudyPolicies", undefined, { ":region": region }, "contains (regions, :region)" // FilterExpression
     );
 };
 exports.queryPoliciesByRegion = queryPoliciesByRegion;

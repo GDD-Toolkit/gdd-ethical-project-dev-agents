@@ -265,9 +265,9 @@ export const queryCaseStudyProjectsByKeyword = async (
 ): Promise<Project[]> => {
   return queryItems<Project>(
     "Toolkit-CaseStudyProjects",
-    undefined, // no key condition, will use Scan
+    undefined,
     { ":keyword": keyword },
-    "contains (keywords, :keyword)" // FilterExpression
+    "contains (keywords, :keyword)"
   );
 };
 
@@ -336,7 +336,7 @@ export const queryPoliciesByRegion = async (
 ): Promise<Policy[]> => {
   return queryItems<Policy>(
     "Toolkit-CaseStudyPolicies",
-    undefined, // no key condition, will use Scan
+    undefined,
     { ":region": region },
     "contains (regions, :region)" // FilterExpression
   );

@@ -45,7 +45,7 @@ app.get("/projects/region/:region", async (req, res) => {
 //Get projects by keyword
 app.get("/projects/keyword/:keyword", async (req, res) => {
     try {
-        const keyword = decodeURIComponent(req.params.region).replace(/\+/g, " ");
+        const keyword = decodeURIComponent(req.params.keyword).replace(/\+/g, " ");
         const projects = await (0, dynamodb_1.queryCaseStudyProjectsByKeyword)(keyword);
         if (!projects || projects.length === 0) {
             return res.status(404).json({ error: "No projects found for this keyword" });

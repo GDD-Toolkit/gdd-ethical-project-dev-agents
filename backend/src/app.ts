@@ -48,7 +48,7 @@ app.get("/projects/region/:region", async (req, res) => {
 //Get projects by keyword
 app.get("/projects/keyword/:keyword", async (req, res) => {
   try {
-    const keyword = decodeURIComponent(req.params.region).replace(/\+/g, " ");
+    const keyword = decodeURIComponent(req.params.keyword).replace(/\+/g, " ");
     
     const projects = await queryCaseStudyProjectsByKeyword(keyword);
 
