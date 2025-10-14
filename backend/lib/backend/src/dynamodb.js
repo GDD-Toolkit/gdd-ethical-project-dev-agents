@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.batchGetCaseStudyPolicies = exports.batchAddCaseStudyPolicies = exports.queryCaseStudyPoliciesByKeyword = exports.queryCaseStudyPoliciesByRegion = exports.deleteCaseStudyPolicy = exports.updateCaseStudyPolicy = exports.getCaseStudyPolicy = exports.addCaseStudyPolicy = exports.batchGetCaseStudyProjects = exports.batchAddCaseStudyProjects = exports.queryCaseStudyProjectsByKeyword = exports.queryCaseStudyProjectsByRegion = exports.deleteCaseStudyProject = exports.updateCaseStudyProject = exports.getCaseStudyProject = exports.addCaseStudyProject = void 0;
+exports.batchGetCaseStudyPolicies = exports.batchAddCaseStudyPolicies = exports.queryPoliciesByField = exports.queryPoliciesByKeyword = exports.queryPoliciesByRegion = exports.deleteCaseStudyPolicy = exports.updateCaseStudyPolicy = exports.getCaseStudyPolicy = exports.addCaseStudyPolicy = exports.batchGetCaseStudyProjects = exports.batchAddCaseStudyProjects = exports.queryCaseStudyProjectsByField = exports.queryCaseStudyProjectsByKeyword = exports.queryCaseStudyProjectsByRegion = exports.deleteCaseStudyProject = exports.updateCaseStudyProject = exports.getCaseStudyProject = exports.addCaseStudyProject = void 0;
 exports.getTables = getTables;
 exports.sendCommand = sendCommand;
 exports.addItem = addItem;
@@ -29,7 +29,7 @@ async function getTables() {
         console.error("Error listing tables:", error);
     }
 }
-/* Generic command sender (works for any DynamoDB command) */
+/* Generic command sender (works for any DocumentClient command) */
 async function sendCommand(command) {
     try {
         const response = await docClient.send(command);
@@ -71,13 +71,14 @@ async function getItem(key, tableName) {
     }
 }
 /* Update single item */
-async function updateItem(tableName, key, updateExpression, expressionValues) {
+async function updateItem(tableName, key, updateExpression, expressionValues, expressionNames) {
     try {
         const command = new lib_dynamodb_1.UpdateCommand({
             TableName: tableName,
             Key: key,
             UpdateExpression: updateExpression,
             ExpressionAttributeValues: expressionValues,
+            ExpressionAttributeNames: expressionNames,
             ReturnValues: "ALL_NEW",
         });
         const response = await sendCommand(command);
@@ -103,7 +104,6 @@ async function batchGetItem(requestItems) {
 /* Batch add multiple items */
 async function batchAddItem(items, tableName) {
     try {
-        // DynamoDB batch write supports up to 25 items per request
         const chunks = [];
         for (let i = 0; i < items.length; i += 25) {
             chunks.push(items.slice(i, i + 25));
@@ -143,15 +143,31 @@ async function deleteItem(tableName, key) {
     }
 }
 /* Query items by partition key and optional filter expression */
-async function queryItems(tableName, keyConditionExpression, expressionAttributeValues, filterExpression) {
+async function queryItems(tableName, keyConditionExpression, expressionAttributeValues, filterExpression, expressionAttributeNames) {
     try {
-        const command = new client_dynamodb_1.QueryCommand({
-            TableName: tableName,
-            KeyConditionExpression: keyConditionExpression,
-            ExpressionAttributeValues: expressionAttributeValues,
-            FilterExpression: filterExpression,
-        });
-        const response = (await sendCommand(command));
+        let response;
+        if (keyConditionExpression) {
+            const command = new lib_dynamodb_1.QueryCommand({
+                TableName: tableName,
+                KeyConditionExpression: keyConditionExpression,
+                ExpressionAttributeValues: expressionAttributeValues,
+                FilterExpression: filterExpression,
+                ExpressionAttributeNames: expressionAttributeNames,
+            });
+            response = (await sendCommand(command));
+        }
+        else {
+            // Use Scan for any field
+            const command = new lib_dynamodb_1.ScanCommand({
+                TableName: tableName,
+                FilterExpression: filterExpression,
+                ExpressionAttributeValues: filterExpression
+                    ? expressionAttributeValues
+                    : undefined,
+                ExpressionAttributeNames: expressionAttributeNames,
+            });
+            response = (await sendCommand(command));
+        }
         return response.Items || [];
     }
     catch (error) {
@@ -173,10 +189,29 @@ exports.updateCaseStudyProject = updateCaseStudyProject;
 const deleteCaseStudyProject = (id) => deleteItem("Toolkit-CaseStudyProjects", { id });
 exports.deleteCaseStudyProject = deleteCaseStudyProject;
 /* Query projects by region */
-const queryCaseStudyProjectsByRegion = (region) => queryItems("Toolkit-CaseStudyProjects", "contains (regions, :region)", { ":region": region });
+const queryCaseStudyProjectsByRegion = async (region) => {
+    if (!region)
+        return [];
+    // This relies on 'regions' being an attribute on your table items
+    return queryItems("Toolkit-CaseStudyProjects", undefined, { ":region": region }, // Value is now passed directly as plain JS object/string
+    "contains (regions, :region)");
+};
 exports.queryCaseStudyProjectsByRegion = queryCaseStudyProjectsByRegion;
-const queryCaseStudyProjectsByKeyword = (keyword) => queryItems("Toolkit-CaseStudyProjects", "contains (keywords, :keyword)", { ":keyword": keyword });
+/* Query projects by keyword */
+const queryCaseStudyProjectsByKeyword = async (keyword) => {
+    return queryItems("Toolkit-CaseStudyProjects", undefined, // no key condition, will use Scan
+    { ":keyword": keyword }, "contains (keywords, :keyword)" // FilterExpression
+    );
+};
 exports.queryCaseStudyProjectsByKeyword = queryCaseStudyProjectsByKeyword;
+// Query projects by any field
+const queryCaseStudyProjectsByField = async (fieldName, value) => {
+    // Use a placeholder #F for the field name to avoid reserved word conflicts
+    const filterExpression = `contains (#F, :value)`;
+    return queryItems("Toolkit-CaseStudyProjects", undefined, { ":value": value }, filterExpression, { "#F": fieldName } // Map the placeholder #F to the actual field name
+    );
+};
+exports.queryCaseStudyProjectsByField = queryCaseStudyProjectsByField;
 /* Batch add projects */
 const batchAddCaseStudyProjects = (projects) => batchAddItem(projects, "Toolkit-CaseStudyProjects");
 exports.batchAddCaseStudyProjects = batchAddCaseStudyProjects;
@@ -201,13 +236,26 @@ exports.updateCaseStudyPolicy = updateCaseStudyPolicy;
 /* Delete single policy by id */
 const deleteCaseStudyPolicy = (id) => deleteItem("Toolkit-CaseStudyPolicies", { id });
 exports.deleteCaseStudyPolicy = deleteCaseStudyPolicy;
-/* Query policies by region */
-const queryCaseStudyPoliciesByRegion = (region) => queryItems("Toolkit-CaseStudyPolicies", "region = :region", {
-    ":region": region,
-});
-exports.queryCaseStudyPoliciesByRegion = queryCaseStudyPoliciesByRegion;
-const queryCaseStudyPoliciesByKeyword = (keyword) => queryItems("Toolkit-CaseStudyPolicies", "contains (keywords, :keyword)", { ":keyword": keyword });
-exports.queryCaseStudyPoliciesByKeyword = queryCaseStudyPoliciesByKeyword;
+// Query policies by region
+const queryPoliciesByRegion = async (region) => {
+    return queryItems("Toolkit-CaseStudyPolicies", undefined, // no key condition, will use Scan
+    { ":region": region }, "contains (regions, :region)" // FilterExpression
+    );
+};
+exports.queryPoliciesByRegion = queryPoliciesByRegion;
+// Query policies by keyword
+const queryPoliciesByKeyword = async (keyword) => {
+    return queryItems("Toolkit-CaseStudyPolicies", undefined, { ":keyword": keyword }, "contains (keywords, :keyword)");
+};
+exports.queryPoliciesByKeyword = queryPoliciesByKeyword;
+// Query policies by any field dynamically
+const queryPoliciesByField = async (fieldName, value) => {
+    // Use a placeholder #F for the field name to avoid reserved word conflicts
+    const filterExpression = `contains (#F, :value)`;
+    return queryItems("Toolkit-CaseStudyPolicies", undefined, { ":value": value }, filterExpression, { "#F": fieldName } // Map the placeholder #F to the actual field name
+    );
+};
+exports.queryPoliciesByField = queryPoliciesByField;
 /* Batch add policies */
 const batchAddCaseStudyPolicies = (policies) => batchAddItem(policies, "Toolkit-CaseStudyPolicies");
 exports.batchAddCaseStudyPolicies = batchAddCaseStudyPolicies;

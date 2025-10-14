@@ -3,8 +3,6 @@ import {
   DynamoDBClient,
   ListTablesCommand,
   BatchGetItemCommand,
-  QueryCommand,
-  QueryCommandOutput,
 } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
@@ -12,13 +10,18 @@ import {
   GetCommand,
   UpdateCommand,
   BatchWriteCommand,
+  DeleteCommand,
+  QueryCommand,
+  QueryCommandOutput,
+  ScanCommand,
+  ScanCommandOutput,
   PutCommandOutput,
   GetCommandOutput,
   UpdateCommandOutput,
   BatchWriteCommandOutput,
-  DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Policy, Project, Region } from "../../shared/types/toolkit-types";
+
+import { Policy, Project } from "../../shared/types/toolkit-types";
 
 config();
 
@@ -38,7 +41,7 @@ export async function getTables(): Promise<void> {
   }
 }
 
-/* Generic command sender (works for any DynamoDB command) */
+/* Generic command sender (works for any DocumentClient command) */
 export async function sendCommand(command: any) {
   try {
     const response = await docClient.send(command);
@@ -90,7 +93,8 @@ export async function updateItem(
   tableName: string,
   key: Record<string, any>,
   updateExpression: string,
-  expressionValues: Record<string, any>
+  expressionValues: Record<string, any>,
+  expressionNames?: Record<string, string>
 ): Promise<UpdateCommandOutput> {
   try {
     const command = new UpdateCommand({
@@ -98,6 +102,7 @@ export async function updateItem(
       Key: key,
       UpdateExpression: updateExpression,
       ExpressionAttributeValues: expressionValues,
+      ExpressionAttributeNames: expressionNames,
       ReturnValues: "ALL_NEW",
     });
     const response = await sendCommand(command);
@@ -128,7 +133,6 @@ export async function batchAddItem(
   tableName: string
 ): Promise<BatchWriteCommandOutput | null> {
   try {
-    // DynamoDB batch write supports up to 25 items per request
     const chunks: Record<string, any>[][] = [];
     for (let i = 0; i < items.length; i += 25) {
       chunks.push(items.slice(i, i + 25));
@@ -176,19 +180,35 @@ export async function deleteItem(
 /* Query items by partition key and optional filter expression */
 export async function queryItems<T extends Record<string, any>>(
   tableName: string,
-  keyConditionExpression: string,
-  expressionAttributeValues: Record<string, any>,
-  filterExpression?: string
+  keyConditionExpression?: string,
+  expressionAttributeValues?: Record<string, any>,
+  filterExpression?: string,
+  expressionAttributeNames?: Record<string, string>
 ): Promise<T[]> {
   try {
-    const command = new QueryCommand({
-      TableName: tableName,
-      KeyConditionExpression: keyConditionExpression,
-      ExpressionAttributeValues: expressionAttributeValues,
-      FilterExpression: filterExpression,
-    });
+    let response: QueryCommandOutput | ScanCommandOutput;
 
-    const response = (await sendCommand(command)) as QueryCommandOutput;
+    if (keyConditionExpression) {
+      const command = new QueryCommand({
+        TableName: tableName,
+        KeyConditionExpression: keyConditionExpression,
+        ExpressionAttributeValues: expressionAttributeValues,
+        FilterExpression: filterExpression,
+        ExpressionAttributeNames: expressionAttributeNames,
+      });
+      response = (await sendCommand(command)) as QueryCommandOutput;
+    } else {
+      // Use Scan for any field
+      const command = new ScanCommand({
+        TableName: tableName,
+        FilterExpression: filterExpression,
+        ExpressionAttributeValues: filterExpression
+          ? expressionAttributeValues
+          : undefined,
+        ExpressionAttributeNames: expressionAttributeNames,
+      });
+      response = (await sendCommand(command)) as ScanCommandOutput;
+    }
 
     return (response.Items as T[]) || [];
   } catch (error) {
@@ -225,23 +245,47 @@ export const deleteCaseStudyProject = (id: string): Promise<void> =>
   deleteItem("Toolkit-CaseStudyProjects", { id });
 
 /* Query projects by region */
-export const queryCaseStudyProjectsByRegion = (
-  region: Region
-): Promise<Project[]> =>
-  queryItems<Project>(
-    "Toolkit-CaseStudyProjects",
-    "contains (regions, :region)",
-    { ":region": region }
-  );
+export const queryCaseStudyProjectsByRegion = async (
+  region: string
+): Promise<Project[]> => {
+  if (!region) return [];
 
-export const queryCaseStudyProjectsByKeyword = (
-  keyword: string
-): Promise<Project[]> =>
-  queryItems<Project>(
+  // This relies on 'regions' being an attribute on your table items
+  return queryItems<Project>(
     "Toolkit-CaseStudyProjects",
-    "contains (keywords, :keyword)",
-    { ":keyword": keyword }
+    undefined,
+    { ":region": region }, // Value is now passed directly as plain JS object/string
+    "contains (regions, :region)"
   );
+};
+
+/* Query projects by keyword */
+export const queryCaseStudyProjectsByKeyword = async (
+  keyword: string
+): Promise<Project[]> => {
+  return queryItems<Project>(
+    "Toolkit-CaseStudyProjects",
+    undefined, // no key condition, will use Scan
+    { ":keyword": keyword },
+    "contains (keywords, :keyword)" // FilterExpression
+  );
+};
+
+// Query projects by any field
+export const queryCaseStudyProjectsByField = async (
+  fieldName: string,
+  value: string
+): Promise<Project[]> => {
+  // Use a placeholder #F for the field name to avoid reserved word conflicts
+  const filterExpression = `contains (#F, :value)`;
+  return queryItems<Project>(
+    "Toolkit-CaseStudyProjects",
+    undefined,
+    { ":value": value },
+    filterExpression,
+    { "#F": fieldName } // Map the placeholder #F to the actual field name
+  );
+};
 
 /* Batch add projects */
 export const batchAddCaseStudyProjects = (
@@ -286,20 +330,45 @@ export const updateCaseStudyPolicy = (
 export const deleteCaseStudyPolicy = (id: string): Promise<void> =>
   deleteItem("Toolkit-CaseStudyPolicies", { id });
 
-/* Query policies by region */
-export const queryCaseStudyPoliciesByRegion = (
-  region: Region
-): Promise<Policy[]> =>
-  queryItems<Policy>("Toolkit-CaseStudyPolicies", "region = :region", {
-    ":region": region,
-  });
-
-  export const queryCaseStudyPoliciesByKeyword = (keyword: string): Promise<Policy[]> =>
-  queryItems<Policy>(
+// Query policies by region
+export const queryPoliciesByRegion = async (
+  region: string
+): Promise<Policy[]> => {
+  return queryItems<Policy>(
     "Toolkit-CaseStudyPolicies",
-    "contains (keywords, :keyword)",
-    { ":keyword": keyword }
+    undefined, // no key condition, will use Scan
+    { ":region": region },
+    "contains (regions, :region)" // FilterExpression
   );
+};
+
+// Query policies by keyword
+export const queryPoliciesByKeyword = async (
+  keyword: string
+): Promise<Policy[]> => {
+  return queryItems<Policy>(
+    "Toolkit-CaseStudyPolicies",
+    undefined,
+    { ":keyword": keyword },
+    "contains (keywords, :keyword)"
+  );
+};
+
+// Query policies by any field dynamically
+export const queryPoliciesByField = async (
+  fieldName: string,
+  value: string
+): Promise<Policy[]> => {
+  // Use a placeholder #F for the field name to avoid reserved word conflicts
+  const filterExpression = `contains (#F, :value)`;
+  return queryItems<Policy>(
+    "Toolkit-CaseStudyPolicies",
+    undefined,
+    { ":value": value },
+    filterExpression,
+    { "#F": fieldName } // Map the placeholder #F to the actual field name
+  );
+};
 
 /* Batch add policies */
 export const batchAddCaseStudyPolicies = (
