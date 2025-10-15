@@ -124,7 +124,7 @@ export type Policy = {
   introduction: string;
   goal: string;
   methods: string;
-  solutions: string;
+  solutions?: string;
   findings_implications: string;
   relation_sdgs_values: string;
   references: string[];
