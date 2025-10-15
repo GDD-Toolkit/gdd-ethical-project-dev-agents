@@ -122,7 +122,6 @@ export type Policy = {
   sdgs: SDG[];
   issue: string;
   introduction: string;
-  context: string;
   goal: string;
   methods: string;
   solutions: string;

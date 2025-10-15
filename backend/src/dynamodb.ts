@@ -303,6 +303,28 @@ export const batchGetCaseStudyProjects = (
   return batchGetItem(requestItems);
 };
 
+export const getCaseStudyProjectsWithNullScores = async (): Promise<Project[]> => {
+  try {
+    const allProjects = await queryItems<Project>("Toolkit-CaseStudyProjects");
+
+    const projectsWithNullScores = allProjects.filter((project) => {
+      const evals = project.evaluation;
+      return Object.values(evals).some(
+        (category) => !category.score || category.score === null
+      );
+    });
+
+    console.log(
+      `Found ${projectsWithNullScores.length} projects with null scores.`
+    );
+    //console.log(projectsWithNullScores);
+    return projectsWithNullScores;
+  } catch (error) {
+    console.error("Error fetching projects with null scores:", error);
+    throw error;
+  }
+};
+
 /* ========= Policy Domain Functions ========= */
 
 /* Add single policy */
