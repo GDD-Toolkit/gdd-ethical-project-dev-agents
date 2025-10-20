@@ -36,6 +36,11 @@ export type SDG =
   | 16
   | 17;
 
+export type Author = {
+  name?: string,
+  contact: string, //email address or number
+}
+
 const Indicators = {
   "Well-Being": [
     "Readily available access to essential goods including water, food, sanitation",
@@ -101,7 +106,7 @@ export type ProjectEvaluation = {
 export type Project = {
   id: string;
   name: string;
-  image: string;
+  image?: string;
   regions: Region[];
   values: Value[];
   sdgs: SDG[];
@@ -115,8 +120,7 @@ export type Project = {
 export type Policy = {
   id: string;
   name: string;
-  pro_or_mal: "Public Policy" | "Maldevelopment";
-  image: string;
+  image?: string;
   region: Region;
   values: Value[];
   sdgs: SDG[];
@@ -129,4 +133,19 @@ export type Policy = {
   relation_sdgs_values: string;
   references: string[];
   evaluation: ProjectEvaluation;
+  authors?: Author[];
 };
+
+export type Maldevelopment = {
+  id: string;
+  name: string;
+  image?: string;
+  region: Region;
+  values: Value[];
+  sdgs: SDG[];
+  summary: string,
+  relation_sdgs_values: string;
+  references: string[];
+  authors?: Author[];
+  evaluation: ProjectEvaluation;
+}
