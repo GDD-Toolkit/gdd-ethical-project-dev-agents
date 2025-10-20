@@ -21,7 +21,7 @@ import {
   BatchWriteCommandOutput,
 } from "@aws-sdk/lib-dynamodb";
 
-import { Policy, Project } from "../../shared/types/toolkit-types";
+import { Maldevelopment, Policy, Project } from "../../shared/types/toolkit-types";
 
 config();
 
@@ -407,3 +407,7 @@ export const batchGetCaseStudyPolicies = (
   };
   return batchGetItem(requestItems);
 };
+
+/* Add single maldevelopment entry */
+export const addMaldevelopmentProject = (maldevelopment: Maldevelopment) =>
+  addItem(maldevelopment, "Toolkit-CaseStudyMaldevelopment");
