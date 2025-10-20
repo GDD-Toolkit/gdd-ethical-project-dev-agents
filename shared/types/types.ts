@@ -25,7 +25,7 @@ export type Project = {
   project_id: string; // PK (uuid)
   user_id: string; // FK -> User
   title: string;
-  description?: string;
+  description: string;
   status: Status;
   questionnaire_id: string; // FK -> Questionnaire
   tags?: string[];
