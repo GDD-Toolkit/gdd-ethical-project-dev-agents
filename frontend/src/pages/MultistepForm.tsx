@@ -20,7 +20,7 @@ const MultiStepForm = () => {
       <div className="w-full p-[20px] flex items-center text-[40px] md:text-[48px] font-[500] text-white bg-gradient-to-b from-[#262633] to-[#727299] shadow-sm">
         Create Your Project Proposal
       </div>
-      <main className="flex-1 w-full px-6 py-8">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-6 py-8">
         <FormPage
           title={formSteps[step].title}
           questions={formSteps[step].questions}
