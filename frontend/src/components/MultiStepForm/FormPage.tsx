@@ -1,5 +1,7 @@
 import React from "react";
-import ProgressBar from "../progressBar";
+import ProgressBar from "../ProgressBar";
+import Button from "../Button";
+import QuestionBox from "../QuestionBox";
 
 type FormPageProps = {
   title: string;
@@ -8,42 +10,61 @@ type FormPageProps = {
     question: string;
     description: string;
   }[];
+  formData?: Record<number, string>;
+  onAnswerChange?: (questionId: number, answer: string) => void;
   onNext: () => void;
   onPrev: () => void;
+  onSubmit?: () => void;
   isLastStep: boolean;
   totalPages: number;
   step: number
 
 };
 
-const FormPage: React.FC<FormPageProps> = ({ 
-  title, 
+const FormPage: React.FC<FormPageProps> = ({
+  title,
   questions,
+  formData,
+  onAnswerChange,
   onNext,
   onPrev,
+  onSubmit,
   isLastStep,
   totalPages,
-  step
-}) => {  return (
-    <div className="form-page">
-      <h2 className="text-red">{title}</h2>
+  step,
+}) => {
+  return (
+    <div className="multi-step-form flex flex-col justify-between w-full p-6 space-y-6">
+      <h2 className="font-semibold text-[#262633] text-4xl">{title}</h2>
 
       {questions.map((field) => (
-        <div key={field.id} className="form-group">
-          <label>{field.question}</label>
-          <textarea
-              name={field.question}
-              placeholder="Enter your response here..."
-            />
-        </div>
+        <QuestionBox
+          key={field.id}
+          question={field.question}
+          tooltip={field.description}
+          value={formData?.[field.id] || ""}
+          onChange={(value) => onAnswerChange?.(field.id, value)}
+          className="mb-4"
+        />
       ))}
 
-      <div className="nav-buttons">
-        {onPrev && <button onClick={onPrev}>Back</button>}
-        <ProgressBar page={step + 1} total={totalPages} />
-        <button onClick={isLastStep ? onNext : onNext}>
-          {isLastStep ? "Submit" : "Next"}
-        </button>
+      <div className="mt-6 flex items-center justify-between gap-4">
+        {step > 1 ? (
+          <Button onClick={onPrev} label="Back" />
+        ) : (
+          // Invisible placeholder to keep layout balanced
+          <div className="opacity-0 pointer-events-none">
+            <Button label="Back" />
+          </div>
+        )}
+
+        <ProgressBar page={step} total={totalPages} />
+
+        {isLastStep ? (
+          <Button label="Submit" onClick={onSubmit} />
+        ) : (
+          <Button label="Next" onClick={onNext} />
+        )}
       </div>
     </div>
   );
