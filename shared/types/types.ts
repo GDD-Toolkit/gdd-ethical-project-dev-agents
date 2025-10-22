@@ -12,9 +12,11 @@ export type User = {
   age: number;
   country: string;
   language: string;
+  affiliation: string;
   interests: Interest[];
   created_at: string; // timestamp ISO 8601 format
   updated_at: string; // timestamp ISO 8601 format
+  profile_picture: string | File | null;
 };
 
 // this way the we can have multiple projects for a user and we can track the project history and progress

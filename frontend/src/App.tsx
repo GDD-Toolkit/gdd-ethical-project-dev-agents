@@ -1,11 +1,10 @@
 import './App.css'
+import { ProfilePage } from './pages/ProfilePage';
 
 function App() {
   return (
-    <>
-     hello
-    </>
-  )
+    <ProfilePage />
+  );
 }
 
 export default App
